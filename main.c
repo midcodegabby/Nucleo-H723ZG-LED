@@ -6,7 +6,7 @@
 
 #define GPIOB 0x58020400
 #define GPIOC 0x58020800
-#define GPIOE 0x5802100
+#define GPIOE 0x58021000
 #define RCC 0x58024400
 
 #define GPIOB_MODER (*((volatile uint32_t *) GPIOB))
@@ -43,6 +43,8 @@ void led_init(void){
 	RCC_AHB4ENR |= (1 << 1); //enable GPIOB clk
 	RCC_AHB4ENR |= (1 << 2); //enable GPIOC clk
 	RCC_AHB4ENR |= (1 << 4); //enable GPIOE clk
+	
+	for (volatile uint8_t i = 0; i < 10; i++);
 
 	GPIOB_MODER &= ~(1 << 1); //output mode for PB0
 	GPIOB_MODER &= ~(1 << 29); //output mode for PB14
@@ -50,6 +52,8 @@ void led_init(void){
 	GPIOC_MODER &= ~(0x3 << 26); //input mode for PC13
 
 	GPIOC_PUPDR |= (1 << 26); //pull up R for PC13
+
+	
 }
 
 int main(void) {
@@ -58,9 +62,11 @@ int main(void) {
 	uint32_t val = 0;
 
 	//turn on all 3 LEDs
+	
 	GPIOB_BSRR |= (1 << 0);
 	GPIOB_BSRR |= (1 << 14); 
 	GPIOE_BSRR |= (1 << 1);
+	
 
 	while (1) {
 		

@@ -22,7 +22,7 @@ clean:
 	rm -rf *.o *.elf *.map
 
 load:
-	openocd -f board/st_nucleo_h7.cfg
+	openocd -f interface/stlink.cfg -c "transport select dapdirect_swd" -f target/stm32h7x.cfg 
 
 client:
 	arm-none-eabi-gdb
