@@ -1,54 +1,72 @@
-//	Author: Gabriel Rodgers, with modifications by Quinn Yockey
-//	Date: 2025-04-24
-//	Purpose: To get the LD2 on the Nucleo-F446RE to turn on. 
+//	Author: Gabriel Rodgers
+//	Date: 2025-06-02
+//	Purpose: To get LD1, LD2, and LD3 on the Nucleo-F446RE to turn on. 
 
-// #include <stdint.h>
+#include <stdint.h>
 
-#define GPIOA 0x40020000
-#define RCC 0x40023800
+#define GPIOB 0x58020400
+#define GPIOC 0x58020800
+#define GPIOE 0x5802100
+#define RCC 0x58024400
 
-#define GPIOA_ODR (*((volatile unsigned *) (GPIOA + 0x14)))
-#define GPIOA_MODER (*((volatile unsigned *) GPIOA))
-#define GPIOA_OTYPER (*((volatile unsigned *) (GPIOA + 0x04)))
-#define GPIOA_OSPEEDR (*((volatile unsigned *) (GPIOA + 0x08)))
-#define GPIOA_PUPDR (*((volatile unsigned *) (GPIOA + 0x0C)))
-#define GPIOA_BSRR (*((volatile unsigned *) (GPIOA + 0x18)))
+#define GPIOB_MODER (*((volatile uint32_t *) GPIOB))
+#define GPIOB_OTYPER (*((volatile uint32_t *) (GPIOB + 0x04)))
+#define GPIOB_OSPEEDR (*((volatile uint32_t *) (GPIOB + 0x08)))
+#define GPIOB_PUPDR (*((volatile uint32_t *) (GPIOB + 0x0C)))
+#define GPIOB_IDR (*((volatile uint32_t *) (GPIOB + 0x10)))
+#define GPIOB_BSRR (*((volatile uint32_t *) (GPIOB + 0x18)))
 
-//define the first register in the RCC memory section
-//this method directly dereferences the memory itself to access the registers
-#define RCC_CR (*((volatile unsigned *) RCC)) 	//sysclk config
-#define RCC_CFGR (*((volatile unsigned *) (RCC + 0x08)))	//clk config
-#define RCC_AHB1ENR (*((volatile unsigned *) (RCC + 0x30)))	//clk enable for peripherals
-#define RCC_AHB2ENR (*((volatile unsigned *) (RCC + 0x34)))	//clk enable for peripherals
-#define RCC_APB1ENR (*((volatile unsigned *) (RCC + 0x40)))	//clk enable for peripherals
+#define GPIOC_MODER (*((volatile uint32_t *) GPIOC))
+#define GPIOC_OTYPER (*((volatile uint32_t *) (GPIOC + 0x04)))
+#define GPIOC_OSPEEDR (*((volatile uint32_t *) (GPIOC + 0x08)))
+#define GPIOC_PUPDR (*((volatile uint32_t *) (GPIOC + 0x0C)))
+#define GPIOC_IDR (*((volatile uint32_t *) (GPIOC + 0x10)))
+#define GPIOC_BSRR (*((volatile uint32_t *) (GPIOC + 0x18)))
 
-void led_on(void){
+#define GPIOE_MODER (*((volatile uint32_t *) GPIOE))
+#define GPIOE_OTYPER (*((volatile uint32_t *) (GPIOE + 0x04)))
+#define GPIOE_OSPEEDR (*((volatile uint32_t *) (GPIOE + 0x08)))
+#define GPIOE_PUPDR (*((volatile uint32_t *) (GPIOE + 0x0C)))
+#define GPIOE_IDR (*((volatile uint32_t *) (GPIOE + 0x10)))
+#define GPIOE_BSRR (*((volatile uint32_t *) (GPIOE + 0x18)))
 
-	//set LED pin (GPIOA pin 5) to be general purpose output mode
-	GPIOA_MODER |= (1 << 10);
-	GPIOA_MODER &= ~(1 << 11);
+#define RCC_CR (*((volatile uint32_t *) RCC)) 	//sysclk config
+#define RCC_CFGR (*((volatile uint32_t *) (RCC + 0x010)))	//clk config
+#define RCC_AHB4ENR (*((volatile uint32_t *) (RCC + 0x0E0)))	//clk enable for gpio peripherals
+								
+//LD1: PB0
+//LD2: PE1
+//LD3: PB14
+//B1: PC13
 
-	GPIOA_OTYPER &= ~(1 << 5); // set PA5 to be push-pull
-				   
-	GPIOA_ODR |= (1 << 5); // set led ON
+void led_init(void){
+	RCC_AHB4ENR |= (1 << 1); //enable GPIOB clk
+	RCC_AHB4ENR |= (1 << 2); //enable GPIOC clk
+	RCC_AHB4ENR |= (1 << 4); //enable GPIOE clk
+
+	GPIOB_MODER &= ~(1 << 1); //output mode for PB0
+	GPIOB_MODER &= ~(1 << 29); //output mode for PB14
+	GPIOE_MODER &= ~(1 << 3); //output mode for PE1
+	GPIOC_MODER &= ~(0x3 << 26); //input mode for PC13
+
+	GPIOC_PUPDR |= (1 << 26); //pull up R for PC13
 }
 
 int main(void) {
-	
-	//enable clk for peripherals (GPIO Port A)
-	RCC_AHB1ENR |= (1 << 0);	
+	led_init();
 
-	for(unsigned i=0; i < 2; i++); 
+	uint32_t val = 0;
 
-	led_on();
-
-	unsigned val = 0;
+	//turn on all 3 LEDs
+	GPIOB_BSRR |= (1 << 0);
+	GPIOB_BSRR |= (1 << 14); 
+	GPIOE_BSRR |= (1 << 1);
 
 	while (1) {
 		
 		if (val == 100000) {
 
-		//	GPIOA_ODR ^= (1 << 5); // set led ON
+			//GPIOB_ODR ^= (1 << 5); // set led ON
 			val = 0;
 		}
 
