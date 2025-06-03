@@ -3,8 +3,8 @@
 AS=arm-none-eabi-as
 CC=arm-none-eabi-gcc
 MACH=cortex-m7
-AFLAGS=-c -mcpu=$(MACH) -mthumb -Wall -o1
-CFLAGS=-c -mcpu=$(MACH) -mthumb --std=gnu11 -Wall -Wextra -Wpedantic -o1 -g3
+AFLAGS=-c -mcpu=$(MACH) -mthumb -Wall 
+CFLAGS=-c -mcpu=$(MACH) -mthumb --std=gnu11 -Wall -Wextra -Wpedantic -O1 -g3
 LDFLAGS=-nostdlib -T ls.ld -Wl,-Map=final.map 
 
 all: main.o startup.o final.elf
