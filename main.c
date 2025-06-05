@@ -14,6 +14,7 @@
 #define GPIOB_OSPEEDR (*((volatile uint32_t *) (GPIOB + 0x08)))
 #define GPIOB_PUPDR (*((volatile uint32_t *) (GPIOB + 0x0C)))
 #define GPIOB_IDR (*((volatile uint32_t *) (GPIOB + 0x10)))
+#define GPIOB_ODR (*((volatile uint32_t *) (GPIOB + 0x14)))
 #define GPIOB_BSRR (*((volatile uint32_t *) (GPIOB + 0x18)))
 
 #define GPIOC_MODER (*((volatile uint32_t *) GPIOC))
@@ -21,6 +22,7 @@
 #define GPIOC_OSPEEDR (*((volatile uint32_t *) (GPIOC + 0x08)))
 #define GPIOC_PUPDR (*((volatile uint32_t *) (GPIOC + 0x0C)))
 #define GPIOC_IDR (*((volatile uint32_t *) (GPIOC + 0x10)))
+#define GPIOC_ODR (*((volatile uint32_t *) (GPIOC + 0x14)))
 #define GPIOC_BSRR (*((volatile uint32_t *) (GPIOC + 0x18)))
 
 #define GPIOE_MODER (*((volatile uint32_t *) GPIOE))
@@ -28,6 +30,7 @@
 #define GPIOE_OSPEEDR (*((volatile uint32_t *) (GPIOE + 0x08)))
 #define GPIOE_PUPDR (*((volatile uint32_t *) (GPIOE + 0x0C)))
 #define GPIOE_IDR (*((volatile uint32_t *) (GPIOE + 0x10)))
+#define GPIOE_ODR (*((volatile uint32_t *) (GPIOE + 0x14)))
 #define GPIOE_BSRR (*((volatile uint32_t *) (GPIOE + 0x18)))
 
 #define RCC_CR (*((volatile uint32_t *) RCC)) 	//sysclk config
@@ -59,7 +62,7 @@ void led_init(void){
 int main(void) {
 	led_init();
 
-	uint32_t val = 0;
+	uint64_t val = 0;
 
 	//turn on all 3 LEDs
 	
@@ -70,9 +73,11 @@ int main(void) {
 
 	while (1) {
 		
-		if (val == 100000) {
+		if (val == 1000000) {
 
-			//GPIOB_ODR ^= (1 << 5); // set led ON
+			GPIOB_ODR ^= (1 << 0);
+			GPIOB_ODR ^= (1 << 14); 
+			GPIOE_ODR ^= (1 << 1);
 			val = 0;
 		}
 
